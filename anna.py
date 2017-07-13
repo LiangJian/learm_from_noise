@@ -38,20 +38,37 @@ data_real_ave = np.average(data_real, 0)
 data_real_diff = np.array([data_real[:, i] - data_real_ave[i] for i in range(0, data_real.shape[1])]).swapaxes(0, 1)
 
 corr = np.corrcoef(data_real, data_real, False)
-print([corr[0, i] for i in range(20, 30)])
+plt.plot([float('%6.4f' % corr[0, i]) for i in range(20, 30)], 'x', label='real-real', markersize=12)
+corr = np.corrcoef(np.abs(data_real), np.log(np.abs(data_real)), False)
+plt.plot([float('%6.4f' % corr[0, i]) for i in range(20, 30)], '+', label='real-log(real)', markersize=12)
+corr = np.corrcoef(np.log(np.abs(data_real)), np.log(np.abs(data_real)), False)
+plt.plot([float('%6.4f' % corr[0, i]) for i in range(20, 30)], '*', label='log(real)-log(real)', markersize=12)
 corr = np.corrcoef(data_real, data_imag, False)
-print([corr[20, i] for i in range(20, 25)])
+plt.plot([float('%6.4f' % corr[20, i]) for i in range(20, 30)], 'x', label='real-imag', markersize=12)
 data_rand = np.random.random(data_real.size).reshape(data_real.shape)
 corr = np.corrcoef(data_real, data_rand, False)
-print([corr[0, i] for i in range(20, 25)])
+plt.plot([float('%6.4f' % corr[0, i]) for i in range(20, 30)], 'x',label='real-rand', markersize=12)
+plt.legend()
+plt.grid()
+plt.show()
 
-A = np.random.random(100)*0.1 + 1
-m1 = np.random.random(100)*0.01 + 0.1
-m2 = np.random.random(100)*0.01 + 0.15
-noise = (np.random.random(100 * 20)*0.1).reshape(100, 20)
-data_fake = np.zeros(shape=(100, 20))
-for ic in range(0, 100):
-    for it in range(0, 20):
-        data_fake[ic, it] = A[ic] * (np.exp(-m1[ic] * it) + np.exp(-m2[ic] * it)) + noise[ic, it]
+nc = 100
+nt = 50
+noise = np.random.random(nc)
+A1 = noise*0.1 + 1
+A2 = noise*0.1 + 0.5
+A3 = noise*0.1 + 10
+m1 = noise*0.1 + 0.1
+m2 = noise*0.5 + 0.5
+m3 = noise*0.1 + 0.4
+noise = (np.random.random(nc * nt)*0.1).reshape(nc, nt)
+data_fake = np.zeros(shape=(nc, nt))
+for it in range(0, nt):
+    data_fake[..., it] = A1 * np.exp(-m1 * it) + A2 * np.exp(-m2 * it) + A3 * np.exp(-m3 * it)
 corr = np.corrcoef(data_fake, rowvar=False)
-print([corr[0, i] for i in range(0, 10)])
+plt.plot([float('%6.4f' % corr[1, i]) for i in range(1, nt)], 'x', label='real-real', markersize=12)
+corr = np.corrcoef(np.log(data_fake), rowvar=False)
+plt.plot([float('%6.4f' % corr[1, i]) for i in range(1, nt)], 'x', label='log(real)-log(real)', markersize=12)
+plt.legend()
+plt.grid()
+plt.show()
